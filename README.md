@@ -23,6 +23,7 @@ Morpheus é uma aplicação backend desenvolvida com Spring Boot 3.4.4 e Java 17
 - [x] Endpoint REST com Tomcat embutido
 - [x] Logging com Logback
 - [x] Base Flyway estruturada
+- [x] DTOs implementados com `record`
 
 ## 🔐 Variáveis de ambiente necessárias
 
@@ -48,7 +49,6 @@ src/
 ## 🚧 Próximas etapas
 
 - Integração com Telegram
-- Implementação dos DTOs com `record`
 - Finalização dos testes unitários e de integração
 - Versionamento da API e documentação via Swagger
 
