@@ -28,7 +28,6 @@ class EventControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    // Corrige: Use o nome do bean como String para @MockitoBean
     @org.springframework.test.context.bean.override.mockito.MockitoBean("eventService")
     private EventService eventService;
 
