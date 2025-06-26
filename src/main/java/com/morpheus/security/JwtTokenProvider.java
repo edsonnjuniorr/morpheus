@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
@@ -58,7 +59,7 @@ public class JwtTokenProvider {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
         Object rolesClaim = claims.get("roles");
         if (rolesClaim instanceof String rolesStr) {
-            return List.of(rolesStr.split(","));
+            return Arrays.asList(rolesStr.split(","));
         } else if (rolesClaim instanceof java.util.Collection<?> rolesCol) {
             return rolesCol.stream().map(Object::toString).toList();
         }
