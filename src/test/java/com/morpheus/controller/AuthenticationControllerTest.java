@@ -38,7 +38,13 @@ class AuthenticationControllerTest {
         TokenResponse tokenResponse = new TokenResponse("fake-jwt-token");
         Mockito.when(authenticationService.authenticate(any(LoginRequest.class))).thenReturn(tokenResponse);
 
-        mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(loginRequest))).andExpect(status().isOk());
+        org.springframework.test.web.servlet.MvcResult result = mockMvc
+                .perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(tokenResponse)))
+                .andReturn();
     }
 
     @Test
