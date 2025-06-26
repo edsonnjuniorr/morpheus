@@ -52,13 +52,13 @@ class EventSchedulerServiceTest {
         field.setAccessible(true);
         field.set(eventSchedulerService, false);
         eventSchedulerService.checkScheduledEvents();
-        verify(eventRepository, never()).findByNotifiedFalseAndScheduledForBefore(any());
+        verify(eventRepository, never()).findByNotifiedFalseAndScheduledForBetween(any(), any());
     }
 
     @Test
     void checkScheduledEvents_pendingEventsAreNotifiedAndSaved() {
         Event event = mock(Event.class);
-        when(eventRepository.findByNotifiedFalseAndScheduledForBefore(any(LocalDateTime.class))).thenReturn(List.of(event));
+        when(eventRepository.findByNotifiedFalseAndScheduledForBetween(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(List.of(event));
         when(event.getUser()).thenReturn(null);
         when(event.getTitle()).thenReturn("Título teste");
         when(event.getId()).thenReturn(1L);
@@ -84,7 +84,7 @@ class EventSchedulerServiceTest {
 
     @Test
     void checkScheduledEvents_exceptionOnQuery_logsError() {
-        when(eventRepository.findByNotifiedFalseAndScheduledForBefore(any(LocalDateTime.class))).thenThrow(new RuntimeException("Database error"));
+        when(eventRepository.findByNotifiedFalseAndScheduledForBetween(any(LocalDateTime.class), any(LocalDateTime.class))).thenThrow(new RuntimeException("Database error"));
         eventSchedulerService.checkScheduledEvents();
         verify(eventRepository, never()).saveAll(any());
     }
