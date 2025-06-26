@@ -16,4 +16,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByScheduledForBetween(LocalDateTime start, LocalDateTime end);
 
     List<Event> findByNotifiedFalseAndScheduledForBefore(LocalDateTime time);
+
+    List<Event> findByNotifiedFalseAndScheduledForBetween(LocalDateTime start,
+                                                          LocalDateTime end);
 }
