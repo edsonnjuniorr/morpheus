@@ -4,7 +4,7 @@ import com.morpheus.model.entity.Event;
 import com.morpheus.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.cfg.RecoverableException;
+import org.hibernate.RecoverableException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -43,8 +43,9 @@ public class EventSchedulerService {
         }
 
         final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime lookbackTime = now.minusMinutes(lookbackMinutes);
         try {
-            final List<Event> pendingEvents = eventRepository.findByNotifiedFalseAndScheduledForBefore(now);
+            final List<Event> pendingEvents = eventRepository.findByNotifiedFalseAndScheduledForBefore(lookbackTime);
             log.info("Verificando eventos agendados até {}. Encontrados: {}", now, pendingEvents.size());
             int notifiedCount = notifyAndMarkEvents(pendingEvents);
             log.info("Total de eventos notificados nesta execução: {}", notifiedCount);
