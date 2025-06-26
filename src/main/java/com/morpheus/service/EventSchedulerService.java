@@ -43,10 +43,11 @@ public class EventSchedulerService {
         }
 
         final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime lookbackTime = now.minusMinutes(lookbackMinutes);
+        final LocalDateTime lookbackStart = now.minusMinutes(lookbackMinutes);
         try {
-            final List<Event> pendingEvents = eventRepository.findByNotifiedFalseAndScheduledForBefore(lookbackTime);
-            log.info("Verificando eventos agendados até {}. Encontrados: {}", now, pendingEvents.size());
+            final List<Event> pendingEvents = eventRepository
+                    .findByNotifiedFalseAndScheduledForBetween(lookbackStart, now);
+            log.info("Verificando eventos agendados de {} até {}. Encontrados: {}", lookbackStart, now, pendingEvents.size());
             int notifiedCount = notifyAndMarkEvents(pendingEvents);
             log.info("Total de eventos notificados nesta execução: {}", notifiedCount);
         } catch (Exception e) {

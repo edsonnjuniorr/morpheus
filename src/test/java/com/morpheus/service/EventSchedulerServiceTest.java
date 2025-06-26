@@ -53,14 +53,15 @@ class EventSchedulerServiceTest {
         field.setAccessible(true);
         field.set(eventSchedulerService, false);
         eventSchedulerService.checkScheduledEvents();
-        verify(eventRepository, never()).findByNotifiedFalseAndScheduledForBefore(any());
+        verify(eventRepository, never()).findByNotifiedFalseAndScheduledForBetween(any(), any());
     }
 
     @Test
     void checkScheduledEvents_pendingEventsAreNotifiedAndSaved() throws Exception {
         Event event = mock(Event.class);
-        ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
-        when(eventRepository.findByNotifiedFalseAndScheduledForBefore(captor.capture())).thenReturn(List.of(event));
+        ArgumentCaptor<LocalDateTime> startCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        ArgumentCaptor<LocalDateTime> endCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        when(eventRepository.findByNotifiedFalseAndScheduledForBetween(startCaptor.capture(), endCaptor.capture())).thenReturn(List.of(event));
         when(event.getUser()).thenReturn(null);
         when(event.getTitle()).thenReturn("Título teste");
         when(event.getId()).thenReturn(1L);
@@ -76,9 +77,12 @@ class EventSchedulerServiceTest {
         LocalDateTime testStart = LocalDateTime.now();
         assertDoesNotThrow(() -> eventSchedulerService.checkScheduledEvents());
 
-        LocalDateTime captured = captor.getValue();
-        LocalDateTime expected = testStart.minusMinutes(5);
-        assertTrue(!captured.isBefore(expected.minusSeconds(1)) && !captured.isAfter(expected.plusSeconds(1)));
+        LocalDateTime capturedStart = startCaptor.getValue();
+        LocalDateTime capturedEnd = endCaptor.getValue();
+        LocalDateTime expectedStart = testStart.minusMinutes(5);
+        LocalDateTime expectedEnd = testStart;
+        assertTrue(!capturedStart.isBefore(expectedStart.minusSeconds(1)) && !capturedStart.isAfter(expectedStart.plusSeconds(1)));
+        assertTrue(!capturedEnd.isBefore(expectedEnd.minusSeconds(1)) && !capturedEnd.isAfter(expectedEnd.plusSeconds(1)));
 
         verify(event, never()).setNotified(true);
         verify(eventRepository, never()).saveAll(any());
@@ -94,7 +98,7 @@ class EventSchedulerServiceTest {
 
     @Test
     void checkScheduledEvents_exceptionOnQuery_logsError() {
-        when(eventRepository.findByNotifiedFalseAndScheduledForBefore(any(LocalDateTime.class))).thenThrow(new RuntimeException("Database error"));
+        when(eventRepository.findByNotifiedFalseAndScheduledForBetween(any(LocalDateTime.class), any(LocalDateTime.class))).thenThrow(new RuntimeException("Database error"));
         eventSchedulerService.checkScheduledEvents();
         verify(eventRepository, never()).saveAll(any());
     }
