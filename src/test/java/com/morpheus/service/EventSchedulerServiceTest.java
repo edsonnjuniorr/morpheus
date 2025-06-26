@@ -16,6 +16,7 @@ import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import org.mockito.ArgumentCaptor;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -56,20 +57,29 @@ class EventSchedulerServiceTest {
     }
 
     @Test
-    void checkScheduledEvents_pendingEventsAreNotifiedAndSaved() {
+    void checkScheduledEvents_pendingEventsAreNotifiedAndSaved() throws Exception {
         Event event = mock(Event.class);
-        when(eventRepository.findByNotifiedFalseAndScheduledForBefore(any(LocalDateTime.class))).thenReturn(List.of(event));
+        ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
+        when(eventRepository.findByNotifiedFalseAndScheduledForBefore(captor.capture())).thenReturn(List.of(event));
         when(event.getUser()).thenReturn(null);
         when(event.getTitle()).thenReturn("Título teste");
         when(event.getId()).thenReturn(1L);
-        try {
-            Field field = EventSchedulerService.class.getDeclaredField("schedulerEnabled");
-            field.setAccessible(true);
-            field.set(eventSchedulerService, true);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+        Field scheduler = EventSchedulerService.class.getDeclaredField("schedulerEnabled");
+        scheduler.setAccessible(true);
+        scheduler.set(eventSchedulerService, true);
+
+        Field lookback = EventSchedulerService.class.getDeclaredField("lookbackMinutes");
+        lookback.setAccessible(true);
+        lookback.set(eventSchedulerService, 5);
+
+        LocalDateTime testStart = LocalDateTime.now();
         assertDoesNotThrow(() -> eventSchedulerService.checkScheduledEvents());
+
+        LocalDateTime captured = captor.getValue();
+        LocalDateTime expected = testStart.minusMinutes(5);
+        assertTrue(!captured.isBefore(expected.minusSeconds(1)) && !captured.isAfter(expected.plusSeconds(1)));
+
         verify(event, never()).setNotified(true);
         verify(eventRepository, never()).saveAll(any());
     }
