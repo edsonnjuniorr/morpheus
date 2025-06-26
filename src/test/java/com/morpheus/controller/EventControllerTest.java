@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WebMvcTest(EventController.class)
 class EventControllerTest {
@@ -45,7 +46,12 @@ class EventControllerTest {
         Mockito.when(authentication.getPrincipal()).thenReturn("user@email.com");
         Mockito.when(eventService.listEvents("user@email.com")).thenReturn(events);
 
-        mockMvc.perform(get("/events").principal(authentication)).andExpect(status().isOk());
+        org.springframework.test.web.servlet.MvcResult result = mockMvc
+                .perform(get("/events").principal(authentication))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertEquals(objectMapper.writeValueAsString(events), result.getResponse().getContentAsString());
     }
 
     @Test
@@ -56,6 +62,14 @@ class EventControllerTest {
         Mockito.when(authentication.getPrincipal()).thenReturn("user@email.com");
         Mockito.when(eventService.createEvent(eq("user@email.com"), any(EventRequest.class))).thenReturn(eventResponse);
 
-        mockMvc.perform(post("/events").principal(authentication).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(eventRequest))).andExpect(status().isCreated());
+        org.springframework.test.web.servlet.MvcResult result = mockMvc
+                .perform(post("/events")
+                        .principal(authentication)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(eventRequest)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        assertEquals(objectMapper.writeValueAsString(eventResponse), result.getResponse().getContentAsString());
     }
 }
