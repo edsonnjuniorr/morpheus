@@ -43,5 +43,17 @@ class JwtTokenProviderTest {
         String invalidToken = "invalid.token.value";
         assertFalse(jwtTokenProvider.validateToken(invalidToken));
     }
+
+    @Test
+    void shouldParseMultipleRoles() {
+        String subject = "testUser";
+        var token = jwtTokenProvider.generateToken(subject, java.util.List.of("ADMIN", "USER"));
+        assertTrue(jwtTokenProvider.validateToken(token));
+        assertEquals(subject, jwtTokenProvider.getSubject(token));
+        var roles = jwtTokenProvider.getRoles(token);
+        assertEquals(2, roles.size());
+        assertTrue(roles.contains("ADMIN"));
+        assertTrue(roles.contains("USER"));
+    }
 }
 
