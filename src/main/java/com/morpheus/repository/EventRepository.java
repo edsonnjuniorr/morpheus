@@ -17,6 +17,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByNotifiedFalseAndScheduledForBefore(LocalDateTime time);
 
-    List<Event> findByNotifiedFalseAndScheduledForBetween(LocalDateTime start,
-                                                          LocalDateTime end);
+    /**
+     * Busca eventos não notificados agendados entre os intervalos informados.
+     * Utilizado pelo agendador para evitar perda de eventos durante
+     * reinícios ou períodos de inatividade.
+     */
+    List<Event> findByNotifiedFalseAndScheduledForBetween(LocalDateTime start, LocalDateTime end);
 }

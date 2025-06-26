@@ -59,9 +59,7 @@ class EventSchedulerServiceTest {
     @Test
     void checkScheduledEvents_pendingEventsAreNotifiedAndSaved() throws Exception {
         Event event = mock(Event.class);
-        ArgumentCaptor<LocalDateTime> startCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
-        ArgumentCaptor<LocalDateTime> endCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
-        when(eventRepository.findByNotifiedFalseAndScheduledForBetween(startCaptor.capture(), endCaptor.capture())).thenReturn(List.of(event));
+        when(eventRepository.findByNotifiedFalseAndScheduledForBetween(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(List.of(event));
         when(event.getUser()).thenReturn(null);
         when(event.getTitle()).thenReturn("Título teste");
         when(event.getId()).thenReturn(1L);
