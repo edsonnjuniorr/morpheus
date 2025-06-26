@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,11 +29,10 @@ class EventControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    // Corrige: Use o nome do bean como String para @MockitoBean
-    @org.springframework.test.context.bean.override.mockito.MockitoBean("eventService")
+    @MockBean
     private EventService eventService;
 
-    @org.springframework.test.context.bean.override.mockito.MockitoBean("authentication")
+    @MockBean
     private Authentication authentication;
 
     @Autowired
