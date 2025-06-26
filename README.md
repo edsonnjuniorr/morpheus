@@ -9,7 +9,7 @@ Morpheus é uma aplicação backend desenvolvida com Spring Boot 3.4.4 e Java 17
 - Spring Security 6.4.4
 - Spring Data JPA
 - MySQL 8.0
-- FlywayDB
+- Flyway
 - JWT (JJWT 0.11.5)
 - Maven
 

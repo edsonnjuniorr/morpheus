@@ -16,6 +16,7 @@ import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import org.mockito.ArgumentCaptor;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -56,20 +57,31 @@ class EventSchedulerServiceTest {
     }
 
     @Test
-    void checkScheduledEvents_pendingEventsAreNotifiedAndSaved() {
+    void checkScheduledEvents_pendingEventsAreNotifiedAndSaved() throws Exception {
         Event event = mock(Event.class);
         when(eventRepository.findByNotifiedFalseAndScheduledForBetween(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(List.of(event));
         when(event.getUser()).thenReturn(null);
         when(event.getTitle()).thenReturn("Título teste");
         when(event.getId()).thenReturn(1L);
-        try {
-            Field field = EventSchedulerService.class.getDeclaredField("schedulerEnabled");
-            field.setAccessible(true);
-            field.set(eventSchedulerService, true);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+        Field scheduler = EventSchedulerService.class.getDeclaredField("schedulerEnabled");
+        scheduler.setAccessible(true);
+        scheduler.set(eventSchedulerService, true);
+
+        Field lookback = EventSchedulerService.class.getDeclaredField("lookbackMinutes");
+        lookback.setAccessible(true);
+        lookback.set(eventSchedulerService, 5);
+
+        LocalDateTime testStart = LocalDateTime.now();
         assertDoesNotThrow(() -> eventSchedulerService.checkScheduledEvents());
+
+        LocalDateTime capturedStart = startCaptor.getValue();
+        LocalDateTime capturedEnd = endCaptor.getValue();
+        LocalDateTime expectedStart = testStart.minusMinutes(5);
+        LocalDateTime expectedEnd = testStart;
+        assertTrue(!capturedStart.isBefore(expectedStart.minusSeconds(1)) && !capturedStart.isAfter(expectedStart.plusSeconds(1)));
+        assertTrue(!capturedEnd.isBefore(expectedEnd.minusSeconds(1)) && !capturedEnd.isAfter(expectedEnd.plusSeconds(1)));
+
         verify(event, never()).setNotified(true);
         verify(eventRepository, never()).saveAll(any());
     }
