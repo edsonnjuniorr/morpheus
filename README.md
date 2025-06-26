@@ -1,8 +1,11 @@
 # Morpheus
 
-Morpheus é uma aplicação backend desenvolvida com Spring Boot 3.4.4 e Java 17.
-Seu objetivo é oferecer autenticação JWT segura e um pequeno gerenciador de
-eventos pessoais.
+### 🧠 Visão Geral
+
+**Morpheus** é uma assistente virtual pessoal, inspirada no filme *Ela*, voltada para organização e produtividade. Ela permite que o usuário registre tarefas e compromissos com data e hora definidas, recebendo notificações automáticas no dia agendado. A aplicação foi construída com foco em escalabilidade, seguindo os princípios de Clean Code, SOLID e TDD, com arquitetura moderna e preparada para evoluções futuras, como notificações inteligentes, integração com IA e comandos por voz.
+
+---
+
 
 ## ✅ Tecnologias utilizadas
 
