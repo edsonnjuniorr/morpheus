@@ -1,6 +1,8 @@
 # Morpheus
 
-Morpheus é uma aplicação backend desenvolvida com Spring Boot 3.4.4 e Java 17, com foco em autenticação JWT segura e gerenciamento de eventos de usuários.
+Morpheus é uma aplicação backend desenvolvida com Spring Boot 3.4.4 e Java 17.
+Seu objetivo é oferecer autenticação JWT segura e um pequeno gerenciador de
+eventos pessoais.
 
 ## ✅ Tecnologias utilizadas
 
@@ -13,23 +15,36 @@ Morpheus é uma aplicação backend desenvolvida com Spring Boot 3.4.4 e Java 17
 - JWT (JJWT 0.11.5)
 - Maven
 
-## ⚙️ Funcionalidades implementadas
+## ⚙️ Funcionalidades
 
-- [x] Autenticação via JWT
-- [x] Criação de tokens com roles
-- [x] Validação e parsing de tokens JWT
-- [x] Configuração externa via `application.yml` com suporte a variáveis de ambiente
-- [x] Entidades `User` e `Event` com repositórios JPA
-- [x] Endpoint REST com Tomcat embutido
-- [x] Logging com Logback
-- [x] Base Flyway estruturada
-- [x] DTOs implementados com `record`
+- Registro e login de usuários
+- Criação e listagem de eventos pessoais
+- Agendador que verifica e notifica eventos pendentes
+- Geração e validação de tokens JWT com suporte a roles
+- Configuração externa via `application.yml` e variáveis de ambiente
+- Repositórios JPA para entidades `User` e `Event`
+- Endpoints REST executados em Tomcat embutido
+- Mapeamento de exceções e logs via Logback
+- Migrações automatizadas com Flyway
 
 ## 🔐 Variáveis de ambiente necessárias
 
 ```env
 MORPHEUS_JWT_SECRET=umaChaveSeguraCom32OuMaisCaracteres
 ```
+
+## 🚀 Como inicializar
+
+1. Garanta que o MySQL esteja disponível e configure a conexão em
+   `src/main/resources/application.yml` caso necessário.
+2. Exporte a variável `MORPHEUS_JWT_SECRET` com uma chave segura.
+3. Execute o projeto com o Maven:
+
+```bash
+mvn spring-boot:run
+```
+
+O serviço será iniciado em `http://localhost:8080/api`.
 
 ## 📁 Estrutura do projeto
 
@@ -44,6 +59,42 @@ src/
 │   └── resources/
 │       ├── application.yml
 │       └── db/migration/...
+```
+
+## 📚 Como usar
+
+### Registrar usuário
+
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Seu Nome","email":"voce@email.com","password":"senha"}'
+```
+
+### Obter token de acesso
+
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"voce@email.com","password":"senha"}'
+```
+
+O retorno conterá o campo `token` que deve ser utilizado no cabeçalho
+`Authorization` das requisições autenticadas.
+
+### Criar evento
+
+```bash
+curl -X POST http://localhost:8080/api/events \
+  -H "Authorization: Bearer <seu-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Reunião","description":"Planejar projeto","type":"MEETING","scheduledFor":"2025-01-01T10:00:00"}'
+```
+
+### Listar eventos
+
+```bash
+curl -H "Authorization: Bearer <seu-token>" http://localhost:8080/api/events
 ```
 
 ## 🚧 Próximas etapas
